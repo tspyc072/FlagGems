@@ -1442,4 +1442,3 @@ conj_physical:
   - META:
       BLOCK_SIZE: 1024
     num_warps: 8
-
