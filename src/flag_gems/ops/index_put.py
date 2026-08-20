@@ -121,6 +121,13 @@ def generate_index_put_kernel(
                 f"cur_index{i} = tl.load(indices{i}_ptr + {' + '.join(comp)}, mask=mask0, other=0)"
             )
         code.newline()
+        # Wrap negative indices (-1 == last element) to match native
+        # semantics; the bounds mask below still drops out-of-range writes.
+        for i in range(indices_len):
+            code.writeline(
+                f"cur_index{i} = tl.where(cur_index{i} < 0, cur_index{i} + input_shape{i}, cur_index{i})"
+            )
+        code.newline()
         index_mask = [
             f"(cur_index{i} >= 0) & (cur_index{i} < input_shape{i})"
             for i in range(indices_len)
@@ -430,3 +437,13 @@ def _index_put_impl_(inp, indices, values, accumulate=False, unsafe=False):
 
     _index_put_func(inp, tensor_indices, values, accumulate)
     return inp
+
+def _unsafe_index_put(inp, indices, values, accumulate=False):
+    logger.debug("GEMS _UNSAFE_INDEX_PUT")
+    # aten::_unsafe_index_put is the functional (out-of-place) scatter-write
+    # used by the interpreter for `x[idx] = v`; it skips safety checks.
+    # Verified semantics: returns a NEW tensor, does NOT mutate `inp`,
+    # so we reuse `index_put` (which clones before writing in-place).
+    # Negative indices are wrapped inside the codegen kernel (tl.where),
+    # so no extra host-side ops are needed here.
+    return index_put(inp, indices, values, accumulate)
