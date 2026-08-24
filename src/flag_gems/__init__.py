@@ -358,6 +358,7 @@ _FULL_CONFIG = (
     ("concatenate", concatenate),
     ("conj", conj),
     ("conj_physical", conj_physical),
+    ("conj_physical_", conj_physical_),
     ("constant_pad_nd", constant_pad_nd),
     # ("contiguous", contiguous),
     ("conv1d", conv1d),

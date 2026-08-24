@@ -219,6 +219,7 @@ from flag_gems.ops.concat import concat
 from flag_gems.ops.concatenate import concatenate
 from flag_gems.ops.conj import conj
 from flag_gems.ops.conj_physical import conj_physical
+from flag_gems.ops.conj_physical_ import conj_physical_
 from flag_gems.ops.contiguous import contiguous
 from flag_gems.ops.conv1d import conv1d
 from flag_gems.ops.conv2d import conv2d
@@ -990,6 +991,7 @@ __all__ = [
     "concatenate",
     "conj",
     "conj_physical",
+    "conj_physical_",
     "constant_pad_nd",
     "contiguous",
     "conv1d",
