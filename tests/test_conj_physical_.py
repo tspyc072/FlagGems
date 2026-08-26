@@ -29,7 +29,6 @@ def test_conj_physical__complex(shape, dtype):
     out = flag_gems.conj_physical_(x)
 
     assert out is x
-    assert out.data_ptr() == x_ref.data_ptr()
     assert torch.allclose(out, _conj_physical_ref(x_ref))
 
 

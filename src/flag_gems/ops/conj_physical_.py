@@ -4,18 +4,12 @@ import torch
 import triton
 import triton.language as tl
 
-from flag_gems import runtime
-from flag_gems.utils import libentry, libtuner
+from flag_gems.utils import libentry
 
 logger = logging.getLogger(__name__)
 
 
 @libentry()
-@libtuner(
-    configs=runtime.get_tuned_config("conj_physical_")
-    or runtime.get_tuned_config("conj_physical"),
-    key=["n_elements"],
-)
 @triton.jit
 def conj_physical__kernel(in_ptr, out_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
     pid = tl.program_id(0)
@@ -49,8 +43,9 @@ def conj_physical_(input: torch.Tensor) -> torch.Tensor:
     n_elements = input.numel()
     real_ptr = torch.view_as_real(input)
 
-    grid = lambda meta: (triton.cdiv(n_elements, meta["BLOCK_SIZE"]),)
+    BLOCK_SIZE = 1024
+    grid = (triton.cdiv(n_elements, BLOCK_SIZE),)
 
-    conj_physical__kernel[grid](real_ptr, real_ptr, n_elements)
+    conj_physical__kernel[grid](real_ptr, real_ptr, n_elements, BLOCK_SIZE=BLOCK_SIZE)
 
     return input
